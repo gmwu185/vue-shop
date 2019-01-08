@@ -30,7 +30,7 @@ export default {
   },
   methods: {
     signin () {
-      const api = `${process.env.APIPATH}/signin`;
+      const api = `${process.env.APIPATH}/admin/signin`;
       const vm = this;
       console.log(process.env.APIPATH, process.env.CUSTOMPATH);
       this.$http.post(api, vm.user).then((response) => {
