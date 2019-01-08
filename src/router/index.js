@@ -8,9 +8,15 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
+      // 如果不是存在於下面設定的路徑，就會被導到指定的頁面。
+      path: '*',
+      redirect: 'login',
+    },
+    {
       path: '/',
       name: 'HelloWorld',
-      component: HelloWorld
+      component: HelloWorld,
+      meta: { requiresAuth: true },
     },
     {
       path: '/login',
