@@ -13,7 +13,7 @@
           <th width="120">原價</th>
           <th width="120">售價</th>
           <th width="100">是否啟用</th>
-          <th width="130">編輯</th>
+          <th width="80">編輯</th>
         </tr>
       </thead>
       <tbody>
@@ -33,8 +33,6 @@
           <td>
             <button class="btn btn-outline-primary btn-sm"
               @click="openModal(false, item)">編輯</button>
-            <button class="btn btn-outline-primary btn-sm"
-              @click="delItem(item)">刪除</button>
           </td>
         </tr>
       </tbody>
@@ -66,7 +64,7 @@
                     <i class="fas fa-spinner fa-spin"></i>
                   </label>
                   <input type="file" id="customFile" class="form-control-file"
-                    ref="files" @change="uploadFile">
+                    ref="files">
                 </div>
                 <img img="https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=828346ed697837ce808cae68d3ddc3cf&auto=format&fit=crop&w=1350&q=80"
                   class="img-fluid" :src="tempProduct.imageUrl" alt="">
@@ -172,11 +170,8 @@ export default {
       if (isNew) {
         this.tempProduct = {};
         this.isNew = true;
-      } else if ( isNew = 'del' ){
-        console.log('傳入 del 參數')
       } else {
         this.tempProduct = Object.assign({}, item);
-        console.log(Object.assign({}, item));
         this.isNew = false;
       }
       $('#productModal').modal('show');
@@ -203,27 +198,6 @@ export default {
         // vm.products = response.data.products;
       });
     },
-    delItem(item){
-      let api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/product`;
-      var delPDID = item.id;
-      let vm = this;
-
-      this.$http.delete(api+'/'+delPDID).then((response) => {
-        // console.log(response.data);
-        // vm.products = response.data.products;
-        // console.log('DEL response: ', response.data.success);
-        
-        if (response.data.success) {
-          console.log('刪除回傳成功');
-          vm.getProducts();
-        } else {
-          console.log('刪除回傳失敗');
-        }
-      });
-    },
-    uploadFile(){
-      console.log('uploadFile this', this);
-    }
   },
   created() {
     this.getProducts();
