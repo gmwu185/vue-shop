@@ -172,8 +172,8 @@ export default {
       if (isNew) {
         this.tempProduct = {};
         this.isNew = true;
-      } else if ( isNew = 'del' ){
-        console.log('傳入 del 參數')
+      // } else if ( isNew = 'del' ){
+      //   console.log('傳入 del 參數')
       } else {
         this.tempProduct = Object.assign({}, item);
         console.log(Object.assign({}, item));
@@ -223,6 +223,23 @@ export default {
     },
     uploadFile(){
       console.log('uploadFile this', this);
+      const uploadedFile = this.$refs.files.files[0];
+      const vm = this;
+      const formData = new FormData();
+      formData.append('file-to-upload', uploadedFile);
+      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/upload`;
+      this.$http.post(url, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }).then((response)=>{
+        console.log('file_res:', response.data);
+        if(response.data.success){
+          // vm.tempProduct.imageUrl = response.data;
+          // console.log(vm.tempProduct);
+          vm.$set(vm.tempProduct, 'imageUrl', response.data.imageUrl);
+        }
+      })
     }
   },
   created() {
