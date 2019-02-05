@@ -40,6 +40,30 @@
         </tr>
       </tbody>
     </table>
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
+        <li class="page-item" :class="{'disabled': !pagination.has_pre}">
+          <a class="page-link" href="#" aria-label="Previous"
+            @click.prevent="getProducts(pagination.current_page - 1)">
+            <span aria-hidden="true">&laquo;</span>
+            <span class="sr-only">Previous</span>
+          </a>
+        </li>
+        <li class="page-item" v-for="page in pagination.total_pages" :key="page"
+          :class="{'active': pagination.current_page === page}">
+          <a class="page-link" href="#" @click.prevent="getProducts(page)">{{ page }}</a>
+        </li>
+        <!-- <li class="page-item"><a class="page-link" href="#">2</a></li>
+        <li class="page-item"><a class="page-link" href="#">3</a></li> -->
+        <li class="page-item" :class="{'disabled': !pagination.has_next}">
+          <a class="page-link" href="#" aria-label="Next"
+            @click.prevent="getProducts(pagination.current_page + 1)">
+            <span aria-hidden="true">&raquo;</span>
+            <span class="sr-only">Next</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
     <!-- Modal -->
     <div class="modal fade" id="productModal" tabindex="-1" role="dialog"
       aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -152,9 +176,10 @@
 <script>
 import $ from 'jquery';
 export default {
-  data() {
+    data() {
     return {
       products: [],
+      pagination: {},
       tempProduct: {},
       isNew: false,
       isLoading: false,
@@ -164,9 +189,9 @@ export default {
     };
   },
   methods: {
-    getProducts() {
+    getProducts(page = 1) {
       // const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/products`; // 'http://localhost:3000/api/casper/products';
-      const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products`;
+      const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products?page=${page}`;
       const vm = this;
       console.log(process.env.APIPATH, process.env.CUSTOMPATH);
       vm.isLoading = true;
@@ -174,6 +199,7 @@ export default {
         console.log(response.data);
         vm.isLoading = false;
         vm.products = response.data.products;
+        vm.pagination = response.data.pagination;
       });
     },
     openModal(isNew, item) {
@@ -202,6 +228,7 @@ export default {
         console.log(response.data);
         if (response.data.success) {
           $('#productModal').modal('hide');
+          this.$bus.$emit('messsage:push', '更新成功', 'success');
           vm.getProducts();
         } else {
           $('#productModal').modal('hide');
@@ -247,13 +274,20 @@ export default {
         if(response.data.success){
           // vm.tempProduct.imageUrl = response.data;
           // console.log(vm.tempProduct);
+          this.$bus.$emit('messsage:push', '檔案上傳成功', 'success');
           vm.$set(vm.tempProduct, 'imageUrl', response.data.imageUrl);
+        } else {
+          // console.log('this.$bus.$emit: ', this.$bus.$emit);
+          // this.$bus.$emit('message:push', response.data.message, 'success');
+          this.$bus.$emit('messsage:push', response.data.message, 'danger');
         }
       })
     }
   },
-  created() {
+  created(){
     this.getProducts();
+    // this.$bus.$emit('message:push', '這是一段訊息', 'success');
+    // console.log('this.$bus.$emit: ', this.$bus.$emit);
   },
 };
 </script>
