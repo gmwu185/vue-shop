@@ -40,7 +40,8 @@
         </tr>
       </tbody>
     </table>
-    <nav aria-label="Page navigation example">
+    <!-- old pagination -->
+    <!-- <nav aria-label="Page navigation example">
       <ul class="pagination">
         <li class="page-item" :class="{'disabled': !pagination.has_pre}">
           <a class="page-link" href="#" aria-label="Previous"
@@ -53,8 +54,6 @@
           :class="{'active': pagination.current_page === page}">
           <a class="page-link" href="#" @click.prevent="getProducts(page)">{{ page }}</a>
         </li>
-        <!-- <li class="page-item"><a class="page-link" href="#">2</a></li>
-        <li class="page-item"><a class="page-link" href="#">3</a></li> -->
         <li class="page-item" :class="{'disabled': !pagination.has_next}">
           <a class="page-link" href="#" aria-label="Next"
             @click.prevent="getProducts(pagination.current_page + 1)">
@@ -63,7 +62,9 @@
           </a>
         </li>
       </ul>
-    </nav>
+    </nav> -->
+    <!-- add component Pagination New Code -->
+    <Pagination :pagination="pagination" v-on:getPageProducts="getProducts"/>
     <!-- Modal -->
     <div class="modal fade" id="productModal" tabindex="-1" role="dialog"
       aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -175,8 +176,10 @@
 
 <script>
 import $ from 'jquery';
+// add component Pagination New Code
+import Pagination from './Pagination';
 export default {
-    data() {
+  data() {
     return {
       products: [],
       pagination: {},
@@ -288,6 +291,10 @@ export default {
     this.getProducts();
     // this.$bus.$emit('message:push', '這是一段訊息', 'success');
     // console.log('this.$bus.$emit: ', this.$bus.$emit);
+  },
+  // add component Pagination New Code
+  components:{
+    Pagination,
   },
 };
 </script>
