@@ -22,10 +22,10 @@
           <td>{{ item.category }}</td>
           <td>{{ item.title }}</td>
           <td class="text-right">
-            {{ item.origin_price}}
+            {{ item.origin_price | currency }}
           </td>
           <td class="text-right">
-            {{ item.price}}
+            {{ item.price | currency }}
           </td>
           <td>
             <span v-if="item.is_enabled" class="text-success">啟用</span>
@@ -64,7 +64,10 @@
       </ul>
     </nav> -->
     <!-- add component Pagination New Code -->
-    <Pagination :pagination="pagination" v-on:getPageProducts="getProducts"/>
+    <!-- v-on:getPageProducts ==  @getPageProducts -->
+    <!-- :pagination="pagination" - props 動態傳遞 -->
+    <!-- <componentsPagination :pagination="pagination" @getPageProducts="getProducts"/> -->
+    <div is="componentsPagination" :pagination="pagination" @getPageProducts="getProducts" ></div>
     <!-- Modal -->
     <div class="modal fade" id="productModal" tabindex="-1" role="dialog"
       aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -177,7 +180,7 @@
 <script>
 import $ from 'jquery';
 // add component Pagination New Code
-import Pagination from './Pagination';
+import componentsPagination from './Pagination';
 export default {
   data() {
     return {
@@ -292,9 +295,9 @@ export default {
     // this.$bus.$emit('message:push', '這是一段訊息', 'success');
     // console.log('this.$bus.$emit: ', this.$bus.$emit);
   },
-  // add component Pagination New Code
+  // add component componentsPagination New Code
   components:{
-    Pagination,
+    componentsPagination,
   },
 };
 </script>
