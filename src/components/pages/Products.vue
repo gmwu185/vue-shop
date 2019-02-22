@@ -205,6 +205,7 @@ export default {
         console.log(response.data);
         vm.isLoading = false;
         vm.products = response.data.products;
+        console.log("vm.products", vm.products);
         vm.pagination = response.data.pagination;
       });
     },

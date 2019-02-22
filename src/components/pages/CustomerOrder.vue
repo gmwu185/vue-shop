@@ -83,7 +83,8 @@
           <th>單價</th>
         </thead>
         <tbody>
-          <tr v-for="item in cart.carts" :key="item.id" v-if="cart.carts">
+          <!-- v-if="cart.carts" 不知做啥 -->
+          <tr v-for="item in cart.carts" :key="item.id">
             <td class="align-middle">
               <button @click="removeCarItme(item.id)" type="button" class="btn btn-outline-danger btn-sm">
                 <i class="far fa-trash-alt"></i>

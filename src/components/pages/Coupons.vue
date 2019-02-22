@@ -1,151 +1,87 @@
 <template>
   <div>
-    <loading :active.sync="isLoading"></loading>
-    <div class="text-right mt-4">
-      <button class="btn btn-primary"
-        @click="openModal(true)">
-        建立新的優惠券</button>
+    <div class="text-right">
+      <button class="btn btn-primary" @click="openCouponModal(true)">
+        建立新的優惠券
+      </button>
     </div>
     <table class="table mt-4">
       <thead>
         <tr>
-          <th width="120">名稱</th>
+          <th>名稱</th>
           <th>折扣百分比</th>
           <th>到期日</th>
-          <th width="120">是否啟用</th>
-          <th width="100">編輯</th>
+          <th>是否啟用</th>
+          <th>編輯</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(item) in products" :key="item.id">
-          <td>{{ item.category }}</td>
+        <tr v-for="(item, key) in coupons" :key="key">
           <td>{{ item.title }}</td>
-          <td class="text-right">
-            {{ item.origin_price | currency }}
-          </td>
-          <td class="text-right">
-            {{ item.price | currency }}
-          </td>
+          <td>{{ item.percent }}%</td>
+          <td>{{ item.due_date | date }}</td>
           <td>
-            <span v-if="item.is_enabled" class="text-success">啟用</span>
-            <span v-else>未啟用</span>
+            <span v-if="item.is_enabled === 1" class="text-success">啟用</span>
+            <span v-else class="text-muted">未起用</span>
           </td>
           <td>
             <button class="btn btn-outline-primary btn-sm"
-              @click="openModal(false, item)">編輯</button>
-            <button class="btn btn-outline-primary btn-sm"
-              @click="delItem(item)">刪除</button>
+              @click="openCouponModal(false, item)"
+            >編輯</button>
           </td>
         </tr>
       </tbody>
     </table>
-    <!-- add component Pagination New Code -->
-    <!-- v-on:getPageProducts ==  @getPageProducts -->
-    <!-- :pagination="pagination" - props 動態傳遞 -->
-    <!-- <componentsPagination :pagination="pagination" @getPageProducts="getOrders"/> -->
-    <div is="componentsPagination" :pagination="pagination" @getPageProducts="getOrders" ></div>
-    <!-- Modal -->
-    <div class="modal fade" id="productModal" tabindex="-1" role="dialog"
+    
+    <div is="componentsPagination" :pagination="pagination" @getPageProducts="getCoupons" ></div>
+
+    <div class="modal fade" id="couponModal" tabindex="-1" role="dialog"
       aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-lg" role="document">
-        <div class="modal-content border-0">
-          <div class="modal-header bg-dark text-white">
-            <h5 class="modal-title" id="exampleModalLabel">
-              <span>新增產品</span>
-            </h5>
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
               <span aria-hidden="true">&times;</span>
             </button>
           </div>
           <div class="modal-body">
-            <div class="row">
-              <div class="col-sm-4">
-                <div class="form-group">
-                  <label for="image">輸入圖片網址</label>
-                  <input type="text" class="form-control" id="image"
-                    v-model="tempProduct.imageUrl"
-                    placeholder="請輸入圖片連結">
-                </div>
-                <div class="form-group">
-                  <label for="customFile">或 上傳圖片
-                    <!-- <i class="fas fa-spinner fa-spin" ></i> -->
-                    <i class="fas fa-circle-notch fa-spin" v-if="status.fileUploading"></i>
-                  </label>
-                  <input type="file" id="customFile" class="form-control-file"
-                    ref="files" @change="uploadFile">
-                </div>
-                <img img="https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=828346ed697837ce808cae68d3ddc3cf&auto=format&fit=crop&w=1350&q=80"
-                  class="img-fluid" :src="tempProduct.imageUrl" alt="">
-              </div>
-              <div class="col-sm-8">
-                <div class="form-group">
-                  <label for="title">標題</label>
-                  <input type="text" class="form-control" id="title"
-                    v-model="tempProduct.title"
-                    placeholder="請輸入標題">
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group col-md-6">
-                    <label for="category">分類</label>
-                    <input type="text" class="form-control" id="category"
-                      v-model="tempProduct.category"
-                      placeholder="請輸入分類">
-                  </div>
-                  <div class="form-group col-md-6">
-                    <label for="price">單位</label>
-                    <input type="unit" class="form-control" id="unit"
-                      v-model="tempProduct.unit"
-                      placeholder="請輸入單位">
-                  </div>
-                </div>
-
-                <div class="form-row">
-                  <div class="form-group col-md-6">
-                  <label for="origin_price">原價</label>
-                    <input type="number" class="form-control" id="origin_price"
-                      v-model="tempProduct.origin_price"
-                      placeholder="請輸入原價">
-                  </div>
-                  <div class="form-group col-md-6">
-                    <label for="price">售價</label>
-                    <input type="number" class="form-control" id="price"
-                      v-model="tempProduct.price"
-                      placeholder="請輸入售價">
-                  </div>
-                </div>
-                <hr>
-
-                <div class="form-group">
-                  <label for="description">產品描述</label>
-                  <textarea type="text" class="form-control" id="description"
-                    v-model="tempProduct.description"
-                    placeholder="請輸入產品描述"></textarea>
-                </div>
-                <div class="form-group">
-                  <label for="content">說明內容</label>
-                  <textarea type="text" class="form-control" id="content"
-                    v-model="tempProduct.content"
-                    placeholder="請輸入產品說明內容"></textarea>
-                </div>
-                <div class="form-group">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox"
-                      v-model="tempProduct.is_enabled"
-                      :true-value="1"
-                      :false-value="0"
-                      id="is_enabled">
-                    <label class="form-check-label" for="is_enabled">
-                      是否啟用
-                    </label>
-                  </div>
-                </div>
+            <div class="form-group">
+              <label for="title">標題</label>
+              <input type="text" class="form-control" id="title" v-model="tempCoupon.title"
+                placeholder="請輸入標題">
+            </div>
+            <div class="form-group">
+              <label for="coupon_code">優惠碼</label>
+              <input type="text" class="form-control" id="coupon_code" v-model="tempCoupon.code"
+                placeholder="請輸入優惠碼">
+            </div>
+            <div class="form-group">
+              <label for="due_date">到期日</label>
+              <input type="date" class="form-control" id="due_date"
+                v-model="due_date">
+            </div>
+            <div class="form-group">
+              <label for="price">折扣百分比</label>
+              <input type="number" class="form-control" id="price"
+                v-model="tempCoupon.percent" placeholder="請輸入折扣百分比">
+            </div>
+            <div class="form-group">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox"
+                  :true-value="1"
+                  :false-value="0"
+                  v-model="tempCoupon.is_enabled" id="is_enabled">
+                <label class="form-check-label" for="is_enabled">
+                  是否啟用
+                </label>
               </div>
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">取消</button>
-            <button type="button" class="btn btn-primary" @click="updateProduct">確認</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary"
+              @click="updateCoupon">更新優惠券</button>
           </div>
         </div>
       </div>
@@ -155,123 +91,78 @@
 
 <script>
 import $ from 'jquery';
-// add component Pagination New Code
 import componentsPagination from './Pagination';
 export default {
+  props: {
+    config: Object,
+  },
   data() {
     return {
-      orders: [],
+      coupons: {},
       pagination: {},
-      tempProduct: {},
-      isNew: false,
-      isLoading: false,
-      status: {
-        fileUploading: false,
+      tempCoupon: {
+        title: '',
+        is_enabled: 0,
+        percent: 100,
+        due_date: 0,
+        code: '',
       },
+      due_date: new Date(),
+      isNew: false,
     };
   },
+  watch: {
+    due_date() {
+      const vm = this;
+      const timestamp = Math.floor(new Date(vm.due_date) / 1000);
+      vm.tempCoupon.due_date = timestamp;
+    },
+  },
   methods: {
-    getOrders(page = 1) {
-      // const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/products`; // 'http://localhost:3000/api/casper/products';
-      const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/orders?page=${page}`;
+    openCouponModal(isNew, item) {
       const vm = this;
-      console.log(process.env.APIPATH, process.env.CUSTOMPATH);
-      // vm.isLoading = true;
-      this.$http.get(api).then((response) => {
-        console.log(response.data);
-        // vm.isLoading = false;
-        // vm.orders = response.data.orders;
-        // vm.pagination = response.data.pagination;
-      });
-    },
-    openModal(isNew, item) {
-      if (isNew) {
-        this.tempProduct = {};
-        this.isNew = true;
-      // } else if ( isNew = 'del' ){
-      //   console.log('傳入 del 參數')
+      $('#couponModal').modal('show');
+      vm.isNew = isNew;
+      if (vm.isNew) {
+        vm.tempCoupon = {};
       } else {
-        this.tempProduct = Object.assign({}, item);
-        console.log(Object.assign({}, item));
-        this.isNew = false;
+        vm.tempCoupon = Object.assign({}, item);
+        const dateAndTime = new Date(vm.tempCoupon.due_date * 1000).toISOString().split('T');
+        vm.due_date = dateAndTime[0];
       }
-      $('#productModal').modal('show');
     },
-    updateProduct() {
-      let api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/product`; // 'http://localhost:3000/api/casper/products';
-      let httpMethod = 'post';
+    getCoupons(page = 1) {
       const vm = this;
-      if (!vm.isNew) {
-        api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/product/${vm.tempProduct.id}`;
-        httpMethod = 'put';
-      }
-      console.log(process.env.APIPATH, process.env.CUSTOMPATH);
-      this.$http[httpMethod](api, { data: vm.tempProduct }).then((response) => {
-        console.log(response.data);
-        if (response.data.success) {
-          $('#productModal').modal('hide');
-          this.$bus.$emit('messsage:push', '更新成功', 'success');
-          vm.getOrders();
-        } else {
-          $('#productModal').modal('hide');
-          vm.getOrders();
-          console.log('新增失敗');
-        }
-        // vm.products = response.data.products;
+      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/coupons?page=${page}`;
+      this.$http.get(url, vm.tempProduct).then((response) => {
+        vm.coupons = response.data.coupons;
+        console.log('getCoupons()', response);
+        vm.pagination = response.data.pagination;
       });
     },
-    delItem(item){
-      let api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/product`;
-      var delPDID = item.id;
-      let vm = this;
-
-      this.$http.delete(api+'/'+delPDID).then((response) => {
-        // console.log(response.data);
-        // vm.products = response.data.products;
-        // console.log('DEL response: ', response.data.success);
-        
-        if (response.data.success) {
-          console.log('刪除回傳成功');
-          vm.getOrders();
-        } else {
-          console.log('刪除回傳失敗');
-        }
-      });
-    },
-    uploadFile(){
-      console.log('uploadFile this', this);
-      const uploadedFile = this.$refs.files.files[0];
+    updateCoupon() {
       const vm = this;
-      const formData = new FormData();
-      formData.append('file-to-upload', uploadedFile);
-      const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/upload`;
-      vm.status.fileUploading = true;
-      this.$http.post(url, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      }).then((response)=>{
-        console.log('file_res:', response.data);
-        vm.status.fileUploading = false;
-        if(response.data.success){
-          // vm.tempProduct.imageUrl = response.data;
-          // console.log(vm.tempProduct);
-          this.$bus.$emit('messsage:push', '檔案上傳成功', 'success');
-          vm.$set(vm.tempProduct, 'imageUrl', response.data.imageUrl);
-        } else {
-          // console.log('this.$bus.$emit: ', this.$bus.$emit);
-          // this.$bus.$emit('message:push', response.data.message, 'success');
-          this.$bus.$emit('messsage:push', response.data.message, 'danger');
-        }
-      })
-    }
+      if (vm.isNew) {
+        const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/coupon`;
+        this.$http.post(url, { data: vm.tempCoupon }).then((response) => {
+          console.log(response, vm.tempCoupon);
+          $('#couponModal').modal('hide');
+          this.getCoupons();
+        });
+      } else {
+        const url = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/coupon/${vm.tempCoupon.id}`;
+        vm.due_date = new Date(vm.tempCoupon.due_date * 1000);
+        this.$http.put(url, { data: vm.tempCoupon }).then((response) => {
+          console.log(response);
+          $('#couponModal').modal('hide');
+          this.getCoupons();
+        });
+      }
+    },
   },
-  created(){
-    this.getOrders();
-    // this.$bus.$emit('message:push', '這是一段訊息', 'success');
-    // console.log('this.$bus.$emit: ', this.$bus.$emit);
+  created() {
+    this.getCoupons();
   },
-  // add component componentsPagination New Code
   components:{
     componentsPagination,
   },
