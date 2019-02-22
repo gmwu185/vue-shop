@@ -4,17 +4,16 @@
     <div class="text-right mt-4">
       <button class="btn btn-primary"
         @click="openModal(true)">
-        建立新的產品</button>
+        建立新的優惠券</button>
     </div>
     <table class="table mt-4">
       <thead>
         <tr>
-          <th width="120">分類</th>
-          <th>產品名稱</th>
-          <th width="120">原價</th>
-          <th width="120">售價</th>
-          <th width="100">是否啟用</th>
-          <th width="130">編輯</th>
+          <th width="120">名稱</th>
+          <th>折扣百分比</th>
+          <th>到期日</th>
+          <th width="120">是否啟用</th>
+          <th width="100">編輯</th>
         </tr>
       </thead>
       <tbody>
@@ -40,34 +39,11 @@
         </tr>
       </tbody>
     </table>
-    <!-- old pagination -->
-    <!-- <nav aria-label="Page navigation example">
-      <ul class="pagination">
-        <li class="page-item" :class="{'disabled': !pagination.has_pre}">
-          <a class="page-link" href="#" aria-label="Previous"
-            @click.prevent="getProducts(pagination.current_page - 1)">
-            <span aria-hidden="true">&laquo;</span>
-            <span class="sr-only">Previous</span>
-          </a>
-        </li>
-        <li class="page-item" v-for="page in pagination.total_pages" :key="page"
-          :class="{'active': pagination.current_page === page}">
-          <a class="page-link" href="#" @click.prevent="getProducts(page)">{{ page }}</a>
-        </li>
-        <li class="page-item" :class="{'disabled': !pagination.has_next}">
-          <a class="page-link" href="#" aria-label="Next"
-            @click.prevent="getProducts(pagination.current_page + 1)">
-            <span aria-hidden="true">&raquo;</span>
-            <span class="sr-only">Next</span>
-          </a>
-        </li>
-      </ul>
-    </nav> -->
     <!-- add component Pagination New Code -->
     <!-- v-on:getPageProducts ==  @getPageProducts -->
     <!-- :pagination="pagination" - props 動態傳遞 -->
-    <!-- <componentsPagination :pagination="pagination" @getPageProducts="getProducts"/> -->
-    <div is="componentsPagination" :pagination="pagination" @getPageProducts="getProducts" ></div>
+    <!-- <componentsPagination :pagination="pagination" @getPageProducts="getOrders"/> -->
+    <div is="componentsPagination" :pagination="pagination" @getPageProducts="getOrders" ></div>
     <!-- Modal -->
     <div class="modal fade" id="productModal" tabindex="-1" role="dialog"
       aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -184,7 +160,7 @@ import componentsPagination from './Pagination';
 export default {
   data() {
     return {
-      products: [],
+      orders: [],
       pagination: {},
       tempProduct: {},
       isNew: false,
@@ -195,17 +171,17 @@ export default {
     };
   },
   methods: {
-    getProducts(page = 1) {
+    getOrders(page = 1) {
       // const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/admin/products`; // 'http://localhost:3000/api/casper/products';
-      const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/products?page=${page}`;
+      const api = `${process.env.APIPATH}/api/${process.env.CUSTOMPATH}/orders?page=${page}`;
       const vm = this;
       console.log(process.env.APIPATH, process.env.CUSTOMPATH);
-      vm.isLoading = true;
+      // vm.isLoading = true;
       this.$http.get(api).then((response) => {
         console.log(response.data);
-        vm.isLoading = false;
-        vm.products = response.data.products;
-        vm.pagination = response.data.pagination;
+        // vm.isLoading = false;
+        // vm.orders = response.data.orders;
+        // vm.pagination = response.data.pagination;
       });
     },
     openModal(isNew, item) {
@@ -235,10 +211,10 @@ export default {
         if (response.data.success) {
           $('#productModal').modal('hide');
           this.$bus.$emit('messsage:push', '更新成功', 'success');
-          vm.getProducts();
+          vm.getOrders();
         } else {
           $('#productModal').modal('hide');
-          vm.getProducts();
+          vm.getOrders();
           console.log('新增失敗');
         }
         // vm.products = response.data.products;
@@ -256,10 +232,9 @@ export default {
         
         if (response.data.success) {
           console.log('刪除回傳成功');
-          vm.getProducts();
+          vm.getOrders();
         } else {
           console.log('刪除回傳失敗');
-          this.$bus.$emit('messsage:push', "刪除回傳失敗，請查驗登入狀態或重新登入", 'danger');
         }
       });
     },
@@ -292,7 +267,7 @@ export default {
     }
   },
   created(){
-    this.getProducts();
+    this.getOrders();
     // this.$bus.$emit('message:push', '這是一段訊息', 'success');
     // console.log('this.$bus.$emit: ', this.$bus.$emit);
   },

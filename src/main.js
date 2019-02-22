@@ -7,6 +7,8 @@ import VueAxios from 'vue-axios';
 import Loading from 'vue-loading-overlay';
 import 'vue-loading-overlay/dist/vue-loading.css';
 import 'bootstrap';
+import VeeValidate from 'vee-validate';
+import zhTWValidata from 'vee-validate/dist/locale/zh_TW';
   
 // 自定義內容
 import App from './App';
@@ -16,9 +18,18 @@ import currencyFilter from './filters/currency';
 
 Vue.config.productionTip = false;
 Vue.use(VueAxios, axios);
+
+// Vue.use(VeeValidate); // 預設值無法正常在點按 Focus 到 input 再點外面 不像會即時監聽
+Vue.use(VeeValidate, {
+  events: 'input|blur',
+});
+VeeValidate.Validator.localize('zh_TW', zhTWValidata);
+
 axios.defaults.withCredentials = true;
 Vue.component('Loading', Loading);
-Vue.filter('currency', currencyFilter)
+Vue.filter('currency', currencyFilter);
+
+
 
 /* eslint-disable no-new */
 new Vue({
